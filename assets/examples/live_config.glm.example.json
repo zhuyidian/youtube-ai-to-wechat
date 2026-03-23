@@ -1,0 +1,38 @@
+﻿{
+  "llm": {
+    "api_format": "anthropic",
+    "base_url": "https://open.bigmodel.cn/api/anthropic",
+    "api_key_env": "GLM_API_KEY",
+    "model": "glm-4.7",
+    "temperature": 0.7,
+    "timeout": 120,
+    "json_mode": false,
+    "max_tokens": 4000,
+    "anthropic_version": "2023-06-01",
+    "headers": {}
+  },
+  "nanobanana": {
+    "base_url": "https://api.nanobananai.com",
+    "model": "gemini-3-pro-image-preview",
+    "api_key_env": "NANOBANANA_API_KEY",
+    "image_size": "1K"
+  },
+  "brand": {
+    "author_name": "AI Observer",
+    "author_bio": "Track AI products, models, and workflows for WeChat-ready analysis.",
+    "qrcode_url": "E:\\project\\CodexProject\\SkillsDemo\\.agents\\skills\\youtube-ai-to-wechat\\assets\\公众号二维码.png",
+    "follow_text": "持续分享 AI 技术与编程工具干货，觉得有用就点个关注，不错过每一篇实用内容。"
+  },
+  "publish": {
+    "author": "AI Observer",
+    "content_source_url": "",
+    "need_open_comment": 0,
+    "only_fans_can_comment": 0,
+    "publish_mode": "draft_only",
+    "cover_media_id": "TODO_UPLOAD_COVER",
+    "base_url": "https://api.weixin.qq.com",
+    "access_token_env": "WECHAT_ACCESS_TOKEN",
+    "app_id_env": "WECHAT_APP_ID",
+    "app_secret_env": "WECHAT_APP_SECRET"
+  }
+}

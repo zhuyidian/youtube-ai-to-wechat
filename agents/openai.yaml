@@ -1,0 +1,4 @@
+interface:
+  display_name: "YouTube AI To WeChat"
+  short_description: "Turn AI videos into WeChat drafts"
+  default_prompt: "Use $youtube-ai-to-wechat to turn an AI topic or keyword set into a researched WeChat draft."

@@ -1,0 +1,6 @@
+.runs/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+assets/examples/environments/set_minimax_env.local.ps1

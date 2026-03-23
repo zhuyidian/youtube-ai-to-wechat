@@ -1,0 +1,53 @@
+{
+  "llm": {
+    "api_format": "openai",
+    "base_url": "https://api.minimaxi.com/v1",
+    "api_key_env": "MINIMAX_API_KEY",
+    "model": "MiniMax-M2.7",
+    "temperature": 0.6,
+    "timeout": 120,
+    "json_mode": false,
+    "max_tokens": 4000,
+    "headers": {}
+  },
+  "nanobanana": {
+    "base_url": "https://api.minimaxi.com/v1",
+    "model": "image-01",
+    "api_key_env": "MINIMAX_API_KEY",
+    "image_size": "1K",
+    "text_review_max_attempts": 3,
+    "text_review_model": "MiniMax-M2.7",
+    "text_review_base_url": "https://api.minimaxi.com/v1",
+    "text_review_api_key_env": "MINIMAX_API_KEY",
+    "text_review_api_format": "openai",
+    "mode": "fetch",
+    "fetch_strategy": "official_then_wikimedia",
+    "fallback_provider": "wikimedia",
+    "request_timeout": 30,
+    "official_page_limit": 8,
+    "official_images_per_page": 6,
+    "wikimedia_max_results": 8,
+    "minimum_width": 640,
+    "minimum_height": 360,
+    "user_agent": "Mozilla/5.0 (compatible; youtube-ai-to-wechat/1.0; +https://openai.com)"
+  },
+  "brand": {
+    "author_name": "AI情报局",
+    "author_bio": "专注跟踪 AI 产品、模型与工作流变化，输出适合中文读者快速理解的一线拆解。",
+    "qrcode_url": "E:\\project\\CodexProject\\SkillsDemo\\.agents\\skills\\youtube-ai-to-wechat\\assets\\公众号二维码.png",
+    "follow_text": "持续分享 AI 技术与编程工具干货，觉得有用就点个关注，不错过每一篇实用内容。"
+  },
+  "publish": {
+    "author": "AI情报局",
+    "content_source_url": "",
+    "need_open_comment": 0,
+    "only_fans_can_comment": 0,
+    "publish_mode": "draft_only",
+    "cover_media_id": "TODO_UPLOAD_COVER",
+    "base_url": "https://api.weixin.qq.com",
+    "access_token_env": "WECHAT_ACCESS_TOKEN",
+    "app_id_env": "WECHAT_APP_ID",
+    "app_secret_env": "WECHAT_APP_SECRET"
+  },
+  "notes": "Default template using MiniMax for text and official-first image fetch with Wikimedia fallback."
+}

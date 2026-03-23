@@ -1,0 +1,6 @@
+{
+  "base_url": "https://api.nanobananai.com",
+  "model": "gemini-3-pro-image-preview",
+  "api_key_env": "NANOBANANA_API_KEY",
+  "image_size": "1K"
+}

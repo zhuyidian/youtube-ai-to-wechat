@@ -1,0 +1,12 @@
+{
+  "author": "AI 瑙傚療鍛?,
+  "content_source_url": "",
+  "need_open_comment": 0,
+  "only_fans_can_comment": 0,
+  "publish_mode": "draft_only",
+  "cover_media_id": "TODO_UPLOAD_COVER",
+  "base_url": "https://api.weixin.qq.com",
+  "access_token_env": "WECHAT_ACCESS_TOKEN",
+  "app_id_env": "WECHAT_APP_ID",
+  "app_secret_env": "WECHAT_APP_SECRET"
+}

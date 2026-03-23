@@ -1,0 +1,44 @@
+﻿{
+  "environment": "staging",
+  "notes": "Pre-production template using MiniMax with staging credentials.",
+  "llm": {
+    "api_format": "openai",
+    "base_url": "https://api.minimaxi.com/v1",
+    "api_key_env": "MINIMAX_API_KEY_STAGING",
+    "model": "MiniMax-M2.7",
+    "temperature": 0.6,
+    "timeout": 120,
+    "json_mode": false,
+    "max_tokens": 4000,
+    "headers": {}
+  },
+  "nanobanana": {
+    "base_url": "https://api.minimaxi.com/v1",
+    "model": "image-01",
+    "api_key_env": "MINIMAX_API_KEY_STAGING",
+    "image_size": "1K",
+    "text_review_max_attempts": 3,
+    "text_review_model": "MiniMax-M2.7",
+    "text_review_base_url": "https://api.minimaxi.com/v1",
+    "text_review_api_key_env": "MINIMAX_API_KEY_STAGING",
+    "text_review_api_format": "openai"
+  },
+  "brand": {
+    "author_name": "AI情报局 STAGING",
+    "author_bio": "预发布环境公众号品牌配置示例。",
+    "qrcode_url": "E:\\project\\CodexProject\\SkillsDemo\\.agents\\skills\\youtube-ai-to-wechat\\assets\\公众号二维码.png",
+    "follow_text": "持续分享 AI 技术与编程工具干货，觉得有用就点个关注，不错过每一篇实用内容。"
+  },
+  "publish": {
+    "author": "AI情报局 STAGING",
+    "content_source_url": "",
+    "need_open_comment": 0,
+    "only_fans_can_comment": 0,
+    "publish_mode": "draft_only",
+    "cover_media_id": "TODO_UPLOAD_COVER",
+    "base_url": "https://api.weixin.qq.com",
+    "access_token_env": "WECHAT_ACCESS_TOKEN_STAGING",
+    "app_id_env": "WECHAT_APP_ID_STAGING",
+    "app_secret_env": "WECHAT_APP_SECRET_STAGING"
+  }
+}

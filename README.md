@@ -26,28 +26,28 @@
 ### 当前版本
 
 - 仓库当前公开版本: `0.1.0`
-- Git tag: `v0.1.0`
-- 发布日期: `2026-03-24`
+- Git 标签: `v0.1.0`
+- 发布时间: `2026-03-24`
 
-### Changelog
+### 变更记录
 
 #### [0.1.0] - 2026-03-24
 
-Initial public release.
+首个公开版本。
 
-Added:
+本次新增:
 
-- Published the standalone GitHub-ready repository structure for the `youtube-ai-to-wechat` skill.
-- Added top-level release documentation covering scope, prerequisites, quick start, outputs, and release rules.
-- Included operation, schema, config, and model/environment reference documents for the current pipeline implementation.
+- 完成 `youtube-ai-to-wechat` 独立仓库的公开发布整理。
+- 补齐顶层说明文档，覆盖能力范围、运行前准备、快速开始、产物说明和文档导航。
+- 纳入当前实现对应的配置、运行、Schema、模型与环境变量说明文档。
 
-Included in this release:
+本版本包含:
 
-- Topic-driven discovery flow from YouTube search to ranked candidates and source pack generation.
-- Live pipeline orchestration with retry, resume, stage logs, and machine-readable run metadata.
-- WeChat-oriented drafting, rewrite, formatting, asset injection, and draft payload generation.
-- Image planning and generation integration via the configured Nanobanana-compatible path.
-- PowerShell runner examples for preview, environment-specific execution, and OneIT-oriented workflows.
+- 从 YouTube 搜索、候选排序到 `source pack` 生成的主题驱动发现链路。
+- 带重试、恢复、阶段日志和机器可读运行状态的 live pipeline 编排能力。
+- 面向微信公众号草稿的写作、改写、排版、素材注入和草稿 payload 生成能力。
+- 按当前配置接入的 Nanobanana 兼容图片规划与生成链路。
+- 用于预览、分环境执行和 OneIT 风格流程的 PowerShell 运行脚本示例。
 
 ## 仓库结构
 
@@ -180,13 +180,3 @@ python .\scripts\run_live_pipeline.py .\.runs\example\source_pack_v2.json `
 - [`SCHEMA.md`](./SCHEMA.md): 产物结构与兼容字段
 - [`VERSIONING.md`](./VERSIONING.md): 版本号与 tag 规则
 - `README.md`: 当前版本号与变更记录
-
-## 版本发布
-
-当前版本号和变更记录统一维护在本 README 中。
-
-发布约定:
-
-- 使用语义化版本号 `MAJOR.MINOR.PATCH`
-- Git tag 格式固定为 `vMAJOR.MINOR.PATCH`
-- 每次发布前同步更新 README 中的“当前版本”和 “Changelog”

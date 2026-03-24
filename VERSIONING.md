@@ -4,15 +4,15 @@ This repository uses Semantic Versioning for public releases.
 
 ## Version Source of Truth
 
-- Repository release version: [`VERSION`](./VERSION)
+- Repository release version: `README.md` -> `当前版本`
+- Change history: `README.md` -> `Changelog`
 - Git release tag format: `vMAJOR.MINOR.PATCH`
-- Change history: [`CHANGELOG.md`](./CHANGELOG.md)
 
 Example:
 
 ```text
-VERSION      -> 0.1.0
-git tag name -> v0.1.0
+README current version -> 0.1.0
+git tag name           -> v0.1.0
 ```
 
 ## Increment Rules
@@ -48,25 +48,24 @@ Increase `PATCH` for backward-compatible fixes and maintenance, including:
 
 Before creating a release tag:
 
-1. Update [`VERSION`](./VERSION).
-2. Add a dated entry to [`CHANGELOG.md`](./CHANGELOG.md).
+1. Update `README.md` -> `当前版本`.
+2. Add a dated entry under `README.md` -> `Changelog`.
 3. Confirm the README and linked docs still match the real scripts and config defaults.
 4. Create a release commit.
-5. Create an annotated tag matching `VERSION`.
+5. Create an annotated tag matching the version in README.
 6. Push the commit and tag together.
 
 ## Suggested Git Commands
 
 ```powershell
-git add README.md CHANGELOG.md VERSIONING.md VERSION
-git commit -m "docs: prepare v0.1.0 release"
-git tag -a v0.1.0 -m "Release v0.1.0"
+git add README.md VERSIONING.md
+git rm CHANGELOG.md VERSION
+git commit -m "docs: fold release metadata into readme"
 git push origin main
-git push origin v0.1.0
 ```
 
 ## Notes
 
-- Do not create a release tag without updating `VERSION`.
+- Do not create a release tag without updating the version section in `README.md`.
 - If the code contract changes but the release scope is unclear, bias toward a higher version, not a lower one.
 - `schema_version` in [`SCHEMA.md`](./SCHEMA.md) is a contract version, not the same thing as the repository release version.

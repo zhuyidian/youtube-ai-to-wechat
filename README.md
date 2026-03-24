@@ -21,6 +21,34 @@
 - 仓库没有内置依赖锁定文件，运行前需要自行准备 Python 环境
 - 图片与正文链路当前默认是 MiniMax 配置，不是 OpenAI fallback
 
+## 版本与变更
+
+### 当前版本
+
+- 仓库当前公开版本: `0.1.0`
+- Git tag: `v0.1.0`
+- 发布日期: `2026-03-24`
+
+### Changelog
+
+#### [0.1.0] - 2026-03-24
+
+Initial public release.
+
+Added:
+
+- Published the standalone GitHub-ready repository structure for the `youtube-ai-to-wechat` skill.
+- Added top-level release documentation covering scope, prerequisites, quick start, outputs, and release rules.
+- Included operation, schema, config, and model/environment reference documents for the current pipeline implementation.
+
+Included in this release:
+
+- Topic-driven discovery flow from YouTube search to ranked candidates and source pack generation.
+- Live pipeline orchestration with retry, resume, stage logs, and machine-readable run metadata.
+- WeChat-oriented drafting, rewrite, formatting, asset injection, and draft payload generation.
+- Image planning and generation integration via the configured Nanobanana-compatible path.
+- PowerShell runner examples for preview, environment-specific execution, and OneIT-oriented workflows.
+
 ## 仓库结构
 
 ```text
@@ -30,8 +58,6 @@
 |-- MODEL_ENV_GUIDE.zh-CN.md
 |-- OPERATIONS.md
 |-- SCHEMA.md
-|-- VERSION
-|-- CHANGELOG.md
 |-- VERSIONING.md
 |-- assets/
 |   |-- examples/
@@ -152,17 +178,15 @@ python .\scripts\run_live_pipeline.py .\.runs\example\source_pack_v2.json `
 - [`MODEL_ENV_GUIDE.zh-CN.md`](./MODEL_ENV_GUIDE.zh-CN.md): 当前实现对应的模型与环境变量速查
 - [`OPERATIONS.md`](./OPERATIONS.md): 运行、重试、恢复和日常 SOP
 - [`SCHEMA.md`](./SCHEMA.md): 产物结构与兼容字段
-- [`CHANGELOG.md`](./CHANGELOG.md): 版本迭代记录
 - [`VERSIONING.md`](./VERSIONING.md): 版本号与 tag 规则
+- `README.md`: 当前版本号与变更记录
 
 ## 版本发布
 
-当前版本号保存在 [`VERSION`](./VERSION)。
+当前版本号和变更记录统一维护在本 README 中。
 
 发布约定:
 
 - 使用语义化版本号 `MAJOR.MINOR.PATCH`
 - Git tag 格式固定为 `vMAJOR.MINOR.PATCH`
-- 每次发布前同步更新 `VERSION` 和 [`CHANGELOG.md`](./CHANGELOG.md)
-
-首个公开版本见 [`CHANGELOG.md`](./CHANGELOG.md) 中的 `0.1.0` 条目。
+- 每次发布前同步更新 README 中的“当前版本”和 “Changelog”

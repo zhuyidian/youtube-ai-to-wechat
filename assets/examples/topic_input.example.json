@@ -1,11 +1,10 @@
-{
-  "topic": "OpenAI Agents",
-  "keywords": ["OpenAI Agents", "AI agents"],
-  "time_range": "7d",
-  "language": ["zh", "en"],
-  "article_type": "auto",
-  "publish_mode": "draft_only",
-  "max_candidates": 20,
-  "max_selected_videos": 3,
-  "cost_budget": "low"
-}
+﻿{
+  "topic": "OpenAI Agents",
+  "keywords": ["OpenAI Agents", "AI agents"],
+  "time_range": "7d",
+  "language": ["zh", "en"],
+  "article_type": "auto",
+  "publish_mode": "draft_only",
+  "max_candidates": 20,
+  "max_selected_videos": 3
+}

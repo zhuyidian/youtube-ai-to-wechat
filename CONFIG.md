@@ -298,7 +298,7 @@ Authentication behavior:
 
 
 
-Use `dev` when you are validating prompts, payload shape, and offline artifacts. Keep costs low and point at test credentials.
+Use `dev` when you are validating prompts, payload shape, and offline artifacts. Point at test credentials.
 
 
 
@@ -427,6 +427,7 @@ You can still override individual sections for debugging or migration:
 
 
 These flags are deprecated on the main pipeline entrypoint. Prefer `--live-config` unless you are testing one stage in isolation.
+
 
 
 

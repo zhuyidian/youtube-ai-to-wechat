@@ -40,7 +40,7 @@ Important boundary:
 
 Use one of these modes:
 
-- `dev`: local validation, low-cost models, no real publish
+- `dev`: local validation, test-oriented settings, no real publish
 
 - `staging`: real APIs for article and image generation, but no final draft publish unless needed for validation
 
@@ -722,7 +722,7 @@ Before the first run of the day:
 
 - verify the WeChat target account is the intended one
 
-- verify cost-sensitive settings such as model and image generation mode
+- verify the selected model and image generation mode
 
 
 
@@ -851,6 +851,7 @@ These are not implemented yet, but they are the next production hardening steps:
 - richer stage logs with provider-specific error details and upstream response metadata
 
 - daily archive and cleanup policy for `.runs/`
+
 
 
 

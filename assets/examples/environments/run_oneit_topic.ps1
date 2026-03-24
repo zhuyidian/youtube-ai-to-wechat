@@ -6,7 +6,6 @@
   [string]$ArticleType = "auto",
   [int]$MaxCandidates = 20,
   [int]$MaxSelectedVideos = 3,
-  [string]$CostBudget = "low",
   [int]$PerQuery = 8,
   [string]$FixturesDir = "",
   [string]$RunName = "",
@@ -79,7 +78,6 @@ if ($Topic) {
     publish_mode = "draft_only"
     max_candidates = $MaxCandidates
     max_selected_videos = $MaxSelectedVideos
-    cost_budget = $CostBudget
   }
 
   $task | ConvertTo-Json -Depth 6 | Set-Content -Path $taskPath -Encoding UTF8
@@ -165,3 +163,4 @@ if ($RenderOnly) {
 
 & $runScript @params
 exit $LASTEXITCODE
+

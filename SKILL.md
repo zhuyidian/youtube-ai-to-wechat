@@ -46,9 +46,7 @@ Accept a task with these fields:
 
   "max_candidates": 20,
 
-  "max_selected_videos": 3,
-
-  "cost_budget": "low"
+  "max_selected_videos": 3
 
 }
 
@@ -76,7 +74,7 @@ Treat `topic` or `keywords` as required. Default to `publish_mode=draft_only` un
 
 6. Generate the WeChat draft, not a direct publish action.
 
-7. Keep costs low by capping candidate count, selected videos, and image count before reducing article quality.
+7. Keep the workflow focused by capping candidate count, selected videos, and image count before reducing article quality.
 
 
 
@@ -272,6 +270,7 @@ Load only what is relevant:
 8. [`references/wechat-publish-spec.md`](./references/wechat-publish-spec.md): Draft upload expectations
 
 9. [`references/failure-handling.md`](./references/failure-handling.md): Fallback paths
+
 
 
 

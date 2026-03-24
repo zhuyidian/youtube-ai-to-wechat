@@ -1,4 +1,4 @@
-# Source Scoring
+﻿# Source Scoring
 
 ## Candidate Score
 
@@ -17,7 +17,7 @@ Score candidates from 0 to 100.
 2. Add two to five supporting sources.
 3. Do not reject a non-whitelisted channel automatically.
 4. Penalize reposts, clipped summaries, and exaggerated thumbnails.
-5. Favor videos with clean captions or strong metadata when costs must stay low.
+5. Favor videos with clean captions or strong metadata when transcript quality is uncertain.
 
 ## Review Flags
 
@@ -27,3 +27,4 @@ Mark a candidate for human attention when:
 2. The claim depends on rumor or indirect reporting.
 3. The channel is low-trust but the topic is valuable.
 4. The article angle depends on a controversial interpretation.
+

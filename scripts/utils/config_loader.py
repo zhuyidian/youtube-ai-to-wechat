@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -10,7 +10,6 @@ DEFAULT_TASK = {
     "publish_mode": "draft_only",
     "max_candidates": 20,
     "max_selected_videos": 3,
-    "cost_budget": "low",
 }
 
 

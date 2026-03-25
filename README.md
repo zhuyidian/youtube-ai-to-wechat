@@ -1,71 +1,78 @@
 ﻿# youtube-ai-to-wechat
 
-`youtube-ai-to-wechat` 鏄竴涓潰鍚?Codex / 鏈湴鑴氭湰杩愯鐨勫唴瀹圭敓浜?skill锛岀敤鏉ユ妸 YouTube 涓婄殑 AI 涓婚瑙嗛涓庤ˉ鍏呯爺绌讹紝鏁寸悊鎴愰€傚悎寰俊鍏紬鍙疯崏绋跨鐨勪腑鏂囨枃绔犲寘銆?
+`youtube-ai-to-wechat` 是一个面向 Codex / 本地脚本运行的内容生产 skill，用来把 YouTube 上的 AI 主题视频与补充研究，整理成适合微信公众号草稿箱的中文文章包。
 
-褰撳墠浠撳簱鐘舵€佸搴旈涓叕寮€鍙戝竷鐗堟湰 `v0.2.0`锛岄粯璁ゅ畾浣嶆槸鈥滃崐鑷姩鐢熶骇鈥? 鑷姩瀹屾垚閫夐鍙戠幇銆佺礌鏉愭暣鐞嗐€佸啓浣溿€佸浘鐗囪鍒掋€佹帓鐗堝拰鑽夌涓婁紶鍑嗗锛屼汉鍐嶅鏍稿悗鍐冲畾鏄惁鍙戝竷銆?
+当前仓库状态对应公开发布版本 `v0.2.1`。默认定位是“半自动生产”：自动完成选题发现、素材整理、写作、图片规划、排版和草稿上传准备，再由人工审核后决定是否发布。
 
-## 鑳藉姏鑼冨洿
+## 能力范围
 
-- 鍩轰簬涓婚璇嶆垨鍏抽敭璇嶆悳绱?YouTube AI 鍐呭鍊欓€?
-- 瀵瑰€欓€夎棰戝仛鍘婚噸銆佸惎鍙戝紡鎵撳垎鍜屼紭鍏堢骇鎺掑簭
-- 鐢熸垚 transcript/source pack锛屽苟琛ュ厖瀹樻柟璧勬枡绾跨储
-- 鐢熸垚淇℃伅绋裤€佸井淇￠鏍兼敼鍐欑銆佹爣棰樺寘鍜屾憳瑕?
-- 鐢熸垚灏侀潰鍥俱€侀厤鍥捐鍒掑拰淇℃伅鍥捐鍒?
-- 杈撳嚭寰俊鍏紬鍙峰彲鐢ㄧ殑 HTML銆丮arkdown 棰勮鍜岃崏绋?payload
-- 鏀寔鎸夐樁娈甸噸璇曘€佹柇鐐圭画璺戙€佸け璐ュ綊鍥犲拰杩愯鐘舵€佽惤鐩?
+- 基于主题词或关键词搜索 YouTube AI 内容候选
+- 对候选视频做去重、启发式打分和优先级排序
+- 生成 transcript / source pack，并补充官方资料线索
+- 生成信息稿、微信风格改写稿、标题包和摘要
+- 生成封面图、配图规划和信息图规划
+- 输出微信公众号可用的 HTML、Markdown 预览和草稿 payload
+- 支持按阶段重试、断点续跑、失败归因和运行状态落盘
 
-## 褰撳墠杈圭晫
+## 当前边界
 
-- 榛樿浜у嚭鐩爣鏄?`draft_only`锛屼笉寤鸿鎶娾€滅洿鎺ュ彂甯冣€濅綔涓洪粯璁ゆ祦绋?
-- 褰撳墠 transcript 闃舵浠?metadata fallback 涓轰富锛屼笉鏄畬鏁?ASR 绠＄嚎
-- 浠撳簱娌℃湁鍐呯疆渚濊禆閿佸畾鏂囦欢锛岃繍琛屽墠闇€瑕佽嚜琛屽噯澶?Python 鐜
-- 鐢熶骇妯℃澘榛樿鎸夊畼鏂规潵婧愪紭鍏堟姄鍥撅紝鎵句笉鍒版椂鎵嶅洖閫€ `Wikimedia`锛屼笉鍐嶉粯璁や娇鐢ㄦā鍨嬬敓鍥?
+- 默认产出目标是 `draft_only`，不建议把“直接发布”作为默认流程
+- 当前 transcript 阶段以 metadata fallback 为主，不是完整 ASR 管线
+- 仓库没有内置依赖锁定文件，运行前需要自行准备 Python 环境
+- 生产模板默认按官方来源优先抓图，找不到时才回退 `Wikimedia`，不再默认使用模型生图
 
-## 鐗堟湰涓庡彉鏇?
+## 版本与变更
 
-### 褰撳墠鐗堟湰
+### 当前版本
 
-- 浠撳簱褰撳墠鍏紑鐗堟湰: `0.2.0`
-- Git 鏍囩: `v0.2.0`
-- 鍙戝竷鏃堕棿: `2026-03-25`
+- 仓库当前公开版本: `0.2.1`
+- Git 标签: `v0.2.1`
+- 发布时间: `2026-03-25`
 
-### 鍙樻洿璁板綍
+### 变更记录
+
+#### [0.2.1] - 2026-03-25
+
+本次修复:
+
+- 修复 `README.md` 中文文本编码异常，恢复正常可读内容
+- 保留 `v0.2.0` 引入的仓库内 prompt / runner 入口说明，并以正确 UTF-8 文本重写相关章节
 
 #### [0.2.0] - 2026-03-25
 
-鏈鏂板:
+本次新增:
 
-- 鏂板浠撳簱鍐呭彲鐩存帴缁存姢鐨勫叕寮€鍏ュ彛 `prompts/youtube-ai-to-wechat.prompt.md` 鍜 `scripts/run-youtube-ai-to-wechat.ps1`銆?
-- 鏄庣‘ prompt 妯℃澘鍜岃繍琛岃剼鏈殑 canonical 缁存姢浣嶇疆鍦ㄥ綋鍓 skill 浠撳簱鍐咃紝渚夸簬鐙珛鍙戝竷涓庣増鏈拷韪€?
-- 琛ユ洿 README 浣跨敤璇存槑锛岃ˉ鍏呬粨搴撳唴 prompt / runner 鍏ュ彛鍜岀浉鍏虫枃妗ｈ埅瀵笺€?
+- 新增仓库内可直接维护的公开入口 `prompts/youtube-ai-to-wechat.prompt.md` 和 `scripts/run-youtube-ai-to-wechat.ps1`
+- 明确 prompt 模板和运行脚本的 canonical 维护位置在当前 skill 仓库内，便于独立发布与版本追踪
+- 补充 README 使用说明，增加仓库内 prompt / runner 入口和文档导航
 
 #### [0.1.1] - 2026-03-24
 
-鏈淇:
+本次修复:
 
-- 鐮旂┒闃舵鎶?`topic` 鍜?`keywords` 绾冲叆瀹炰綋璇嗗埆锛岃ˉ榻?`wechat`銆乣tencent`銆乣n8n` 鐨勫畼鏂硅祫婧愭槧灏勶紝閬垮厤鈥滅浉鍏宠祫婧愨€濇钀戒负绌恒€?
-- 璋冩暣鍥剧墖鎶撳彇绛栫暐涓哄畼鏂规潵婧愪紭鍏堬紝骞舵寜绔犺妭璇箟銆佹潵婧愬疄浣撳拰椤甸潰鍏冧俊鎭帓搴忥紝鎻愰珮姝ｆ枃閰嶅浘涓庡唴瀹圭殑鐩稿叧鎬с€?
-- 淇灏侀潰鍥俱€佸唴鍥惧拰淇℃伅鍥剧殑姝ｆ枃鎸傝浇瑙勫垯锛岄伩鍏嶆妸鏂囩珷鏍囬璇綋鎴愰涓厤鍥剧珷鑺傘€?
+- 研究阶段把 `topic` 和 `keywords` 纳入实体识别，补齐 `wechat`、`tencent`、`n8n` 的官方资源映射，避免“相关资源”段落为空
+- 调整图片抓取策略为官方来源优先，并按章节语义、来源实体和页面元信息排序，提高正文配图与内容的相关性
+- 修正封面图、内图和信息图的正文挂载规则，避免把文章标题误当成首个配图章节
 
 #### [0.1.0] - 2026-03-24
 
-棣栦釜鍏紑鐗堟湰銆?
+首个公开版本。
 
-鏈鏂板:
+本次新增:
 
-- 瀹屾垚 `youtube-ai-to-wechat` 鐙珛浠撳簱鐨勫叕寮€鍙戝竷鏁寸悊銆?
-- 琛ラ綈椤跺眰璇存槑鏂囨。锛岃鐩栬兘鍔涜寖鍥淬€佽繍琛屽墠鍑嗗銆佸揩閫熷紑濮嬨€佷骇鐗╄鏄庡拰鏂囨。瀵艰埅銆?
-- 绾冲叆褰撳墠瀹炵幇瀵瑰簲鐨勯厤缃€佽繍琛屻€丼chema銆佹ā鍨嬩笌鐜鍙橀噺璇存槑鏂囨。銆?
+- 完成 `youtube-ai-to-wechat` 独立仓库的公开发布整理
+- 补齐顶层说明文档，覆盖能力范围、运行前准备、快速开始、产物说明和文档导航
+- 纳入当前实现对应的配置、运行、Schema、模型与环境变量说明文档
 
-鏈増鏈寘鍚?:
+本版本包含:
 
-- 浠?YouTube 鎼滅储銆佸€欓€夋帓搴忓埌 `source pack` 鐢熸垚鐨勪富棰橀┍鍔ㄥ彂鐜伴摼璺€?
-- 甯﹂噸璇曘€佹仮澶嶃€侀樁娈垫棩蹇楀拰鏈哄櫒鍙杩愯鐘舵€佺殑 live pipeline 缂栨帓鑳藉姏銆?
-- 闈㈠悜寰俊鍏紬鍙疯崏绋跨殑鍐欎綔銆佹敼鍐欍€佹帓鐗堛€佺礌鏉愭敞鍏ュ拰鑽夌 payload 鐢熸垚鑳藉姏銆?
-- 鎸夊綋鍓嶉厤缃帴鍏ョ殑 Nanobanana 鍏煎鍥剧墖瑙勫垝涓庣敓鎴愰摼璺€?
-- 鐢ㄤ簬棰勮銆佸垎鐜鎵ц鍜?OneIT 椋庢牸娴佺▼鐨?PowerShell 杩愯鑴氭湰绀轰緥銆?
+- 从 YouTube 搜索、候选排序到 `source pack` 生成的主题驱动发现链路
+- 带重试、恢复、阶段日志和机器可读运行状态的 live pipeline 编排能力
+- 面向微信公众号草稿的写作、改写、排版、素材注入和草稿 payload 生成能力
+- 按当前配置接入的 Nanobanana 兼容图片规划与生成链路
+- 用于预览、分环境执行和 OneIT 风格流程的 PowerShell 运行脚本示例
 
-## 浠撳簱缁撴瀯
+## 仓库结构
 
 ```text
 .
@@ -85,48 +92,48 @@
 `-- agents/
 ```
 
-## 杩愯鍓嶅噯澶?
+## 运行前准备
 
-鏈€浣庡缓璁幆澧?
+最低建议环境:
 
-- Windows PowerShell 5.1+ 鎴?PowerShell 7+
+- Windows PowerShell 5.1+ 或 PowerShell 7+
 - Python 3.10+
-- 鍙洿鎺ヨ皟鐢ㄧ殑 `python`
-- 绗笁鏂?Python 渚濊禆: `Pillow`
+- 可直接调用的 `python`
+- 第三方 Python 依赖: `Pillow`
 
-鎵€闇€澶栭儴鑳藉姏:
+所需外部能力:
 
 - `YOUTUBE_API_KEY`
 - `MINIMAX_API_KEY`
 - `WECHAT_ACCESS_TOKEN`
-- 鎴栬€?`WECHAT_APP_ID` + `WECHAT_APP_SECRET`
+- 或者 `WECHAT_APP_ID` + `WECHAT_APP_SECRET`
 
-寤鸿鍏堥槄璇?
+建议先阅读:
 
 - [`MODEL_ENV_GUIDE.zh-CN.md`](./MODEL_ENV_GUIDE.zh-CN.md)
 - [`CONFIG.md`](./CONFIG.md)
 - [`OPERATIONS.md`](./OPERATIONS.md)
 
-瀹夎鏈€灏忎緷璧栫ず渚?
+安装最小依赖示例:
 
 ```powershell
 python -m pip install Pillow
 ```
 
-## 蹇€熷紑濮?
+## 快速开始
 
-### 1. 澶嶅埗閰嶇疆妯℃澘
+### 1. 复制配置模板
 
-浠庝互涓嬫ā鏉垮紑濮嬩簩閫変竴:
+从以下模板开始二选一:
 
-- 閫氱敤妯℃澘: [`assets/examples/live_config.example.json`](./assets/examples/live_config.example.json)
-- 鐢熶骇妯℃澘: [`assets/examples/environments/live_config.prod.example.json`](./assets/examples/environments/live_config.prod.example.json)
+- 通用模板: [`assets/examples/live_config.example.json`](./assets/examples/live_config.example.json)
+- 生产模板: [`assets/examples/environments/live_config.prod.example.json`](./assets/examples/environments/live_config.prod.example.json)
 
-濡傛灉浣犻渶瑕佹湰鍦扮鏈夌幆澧冭剼鏈紝寤鸿鎶婄湡瀹炲瘑閽ユ斁鍒版湭绾冲叆鐗堟湰鎺у埗鐨勬湰鍦版枃浠朵腑锛屼笉瑕佺洿鎺ユ敼绀轰緥鏂囦欢鍚庢彁浜ゃ€?
+如果你需要本地私有环境脚本，建议把真实密钥放到未纳入版本控制的本地文件中，不要直接改示例文件后提交。
 
-### 2. 棰勮妯″紡璺戦€氫竴鏉′富棰橀摼璺?
+### 2. 预览模式跑通一条主题链路
 
-浠撳簱鍐呮渶鐩存帴鐨?PowerShell 鍏ュ彛:
+仓库内最直接的 PowerShell 入口:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\assets\examples\environments\run_oneit_topic.ps1 `
@@ -135,18 +142,18 @@ powershell -ExecutionPolicy Bypass -File .\assets\examples\environments\run_onei
   -Preview
 ```
 
-杩欎釜鍏ュ彛浼氬厛鐢熸垚:
+这个入口会先生成:
 
 - `search_candidates.auto.json`
 - `ranked_candidates.auto.json`
 - `transcript_pack.auto.json`
 - `source_pack.auto.json`
 
-鍐嶇户缁窇鏂囩珷涓庢帓鐗堥摼璺紝骞跺湪 `.runs/<run-name>/` 涓嬭緭鍑洪瑙堟枃浠跺拰鍙戝竷鍖呫€?
+再继续跑文章与排版链路，并在 `.runs/<run-name>/` 下输出预览文件和发布包。
 
-### 3. 鐩存帴浣跨敤 Python 涓诲叆鍙?
+### 3. 直接使用 Python 主入口
 
-濡傛灉浣犲凡缁忔湁 `source_pack.json`锛屽彲浠ョ洿鎺ヨ皟鐢ㄥ畬鏁?live pipeline:
+如果你已经有 `source_pack.json`，可以直接调用完整 live pipeline:
 
 ```powershell
 python .\scripts\run_live_pipeline.py .\.runs\example\source_pack_v2.json `
@@ -157,14 +164,14 @@ python .\scripts\run_live_pipeline.py .\.runs\example\source_pack_v2.json `
   --retry-policy smart
 ```
 
-闇€瑕佺湡鐨勮皟鐢ㄥ浘鐗囨垨鑽夌涓婁紶鏃讹紝鍐嶆樉寮忓姞鍏?
+需要真的调用图片或草稿上传时，再显式加入:
 
 - `--execute-images`
 - `--execute-publish`
 
-## 涓昏浜х墿
+## 主要产物
 
-鍏稿瀷杩愯鐩綍浣嶄簬 `.runs/<run-name>/`锛屽父瑙佹枃浠跺寘鎷?
+典型运行目录位于 `.runs/<run-name>/`，常见文件包括:
 
 - `run_live_manifest.json`
 - `pipeline_summary.json`
@@ -176,34 +183,33 @@ python .\scripts\run_live_pipeline.py .\.runs\example\source_pack_v2.json `
 - `draft_payload_live.json`
 - `stage-logs/`
 
-鏇村畬鏁寸殑瀛楁瀹氫箟瑙?[`SCHEMA.md`](./SCHEMA.md)銆?
+更完整的字段定义见 [`SCHEMA.md`](./SCHEMA.md)。
 
-## 浣滀负 Codex Skill 浣跨敤
+## 作为 Codex Skill 使用
 
-濡傛灉浣犳妸杩欎釜浠撳簱浣滀负 skill 鐩存帴鎸傝浇缁?Codex锛屼富鍏ュ彛璇存槑鍦?[`SKILL.md`](./SKILL.md)銆?
+如果你把这个仓库作为 skill 直接挂载给 Codex，主入口说明在 [`SKILL.md`](./SKILL.md)。
 
-鍦?`SkillsDemo` 涓讳粨搴撻噷锛屼篃鍙互閫氳繃浠撳簱绾у寘瑁呰剼鏈皟鐢?
+仓库内公开入口:
+
+- Prompt 模板: [`prompts/youtube-ai-to-wechat.prompt.md`](./prompts/youtube-ai-to-wechat.prompt.md)
+- Runner 包装脚本: [`scripts/run-youtube-ai-to-wechat.ps1`](./scripts/run-youtube-ai-to-wechat.ps1)
+- 环境运行脚本: [`assets/examples/environments/run_oneit_topic.ps1`](./assets/examples/environments/run_oneit_topic.ps1)
+
+如果你是在 `SkillsDemo` 主仓库里调用，也可以通过外层兼容脚本运行:
 
 ```powershell
 .\scripts\run-youtube-ai-to-wechat.ps1 -Topic "OpenAI Agents" -Preview
 ```
 
+## 文档导航
 
-## Repository-local entrypoints
-
-- Prompt template: [`prompts/youtube-ai-to-wechat.prompt.md`](./prompts/youtube-ai-to-wechat.prompt.md)
-- Runner wrapper: [`scripts/run-youtube-ai-to-wechat.ps1`](./scripts/run-youtube-ai-to-wechat.ps1)
-- Environment runner: [`assets/examples/environments/run_oneit_topic.ps1`](./assets/examples/environments/run_oneit_topic.ps1)
-
-## 鏂囨。瀵艰埅
-
-- [`SKILL.md`](./SKILL.md): skill 杈撳叆濂戠害涓庡伐浣滄祦
-- [`CONFIG.md`](./CONFIG.md): 鍚堝苟閰嶇疆缁撴瀯璇存槑
-- [`MODEL_ENV_GUIDE.zh-CN.md`](./MODEL_ENV_GUIDE.zh-CN.md): 褰撳墠瀹炵幇瀵瑰簲鐨勬ā鍨嬩笌鐜鍙橀噺閫熸煡
-- [`OPERATIONS.md`](./OPERATIONS.md): 杩愯銆侀噸璇曘€佹仮澶嶅拰鏃ュ父 SOP
-- [`SCHEMA.md`](./SCHEMA.md): 浜х墿缁撴瀯涓庡吋瀹瑰瓧娈?
-- [`VERSIONING.md`](./VERSIONING.md): 鐗堟湰鍙蜂笌 tag 瑙勫垯
-- `README.md`: 褰撳墠鐗堟湰鍙蜂笌鍙樻洿璁板綍
+- [`SKILL.md`](./SKILL.md): skill 输入契约与工作流
+- [`CONFIG.md`](./CONFIG.md): 合并配置结构说明
+- [`MODEL_ENV_GUIDE.zh-CN.md`](./MODEL_ENV_GUIDE.zh-CN.md): 当前实现对应的模型与环境变量速查
+- [`OPERATIONS.md`](./OPERATIONS.md): 运行、重试、恢复和日常 SOP
+- [`SCHEMA.md`](./SCHEMA.md): 产物结构与兼容字段
+- [`VERSIONING.md`](./VERSIONING.md): 版本号与 tag 规则
+- `README.md`: 当前版本号与变更记录
 
 
 

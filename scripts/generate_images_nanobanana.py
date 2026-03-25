@@ -45,9 +45,54 @@ META_IMAGE_PATTERNS = [
     re.compile(r'<link[^>]+rel=["\']image_src["\'][^>]+href=["\']([^"\']+)["\']', re.IGNORECASE),
 ]
 HTML_IMAGE_RE = re.compile(r'<img[^>]+src=["\']([^"\']+)["\']', re.IGNORECASE)
+HTML_TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
+IMG_TAG_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+REQUEST_ENTITY_ALIASES = {
+    "wechat": ["wechat", "weixin", "微信", "公众号", "视频号", "小程序", "企业微信"],
+    "tencent": ["tencent", "腾讯", "騰訊", "腾訊", "騰讯", "wxg", "wechat team"],
+    "n8n": ["n8n"],
+    "openai": ["openai"],
+    "google": ["google", "谷歌"],
+    "gemini": ["gemini"],
+    "anthropic": ["anthropic"],
+    "claude": ["claude"],
+    "meta": ["meta"],
+    "llama": ["llama"],
+    "microsoft": ["microsoft", "微软", "azure"],
+    "nvidia": ["nvidia", "英伟达"],
+}
+OFFICIAL_URL_HINT_WEIGHTS = {
+    "docs": 8,
+    "developer": 7,
+    "developers": 7,
+    "open.weixin": 8,
+    "cloud.tencent": 5,
+    "guide": 4,
+    "api": 5,
+    "workflow": 8,
+    "architecture": 8,
+    "diagram": 6,
+    "flow": 6,
+    "blog": 3,
+}
+OFFICIAL_BAD_HINTS = {
+    "verifyimg": 80,
+    "scanlogin": 80,
+    "qrcode": 80,
+    "qr": 40,
+    "logo": 60,
+    "icon": 60,
+    "avatar": 45,
+    "favicon": 80,
+    "sprite": 80,
+    "signin": 40,
+    "login": 40,
+    "userimg": 60,
+    "bizimg": 60,
+}
 BAD_IMAGE_HINTS = ("logo", "icon", "avatar", "favicon", "sprite", "badge")
 YOUTUBE_HINTS = ("youtube.com", "youtu.be")
-RELEVANCE_STOP_WORDS = {"the", "and", "for", "with", "from", "into", "over", "this", "that", "your", "what", "when", "where", "why", "how", "article", "wechat", "image", "images", "cover", "inline", "section", "trend", "trends", "guide", "practical"}
+RELEVANCE_STOP_WORDS = {"the", "and", "for", "with", "from", "into", "over", "this", "that", "your", "what", "when", "where", "why", "how", "article", "image", "images", "cover", "inline", "section", "trend", "trends", "guide", "practical"}
 SHORT_KEEP_TOKENS = {"ai", "ml", "llm", "api", "gpt"}
 ENTITY_TERM_WEIGHTS = {"openai": 4, "anthropic": 4, "google": 4, "gemini": 4, "claude": 4, "microsoft": 4, "meta": 4, "llama": 4, "nvidia": 4}
 TYPE_PREFERRED_WEIGHTS = {
@@ -340,37 +385,196 @@ def _dedupe(items: list[str]) -> list[str]:
     return result
 
 
-def _collect_official_page_urls(package: dict, limit: int) -> list[str]:
-    urls: list[str] = []
+def _detect_entities_from_text(text: str) -> list[str]:
+    lowered = text.lower()
+    entities: list[str] = []
+    for entity, aliases in REQUEST_ENTITY_ALIASES.items():
+        if any(alias.lower() in lowered for alias in aliases):
+            entities.append(entity)
+    return _dedupe(entities)
+
+
+def _detect_request_entities(request: dict, package: dict) -> list[str]:
+    primary_text = " ".join(
+        str(request.get(key) or "")
+        for key in ("section_heading", "search_query", "concept", "cover_copy", "title")
+    )
+    primary_entities = _detect_entities_from_text(primary_text)
+    if primary_entities:
+        return primary_entities
+
+    task = package.get("task", {}) or {}
+    secondary_parts = [
+        str(package.get("final_title") or package.get("selected_title") or package.get("title") or ""),
+        str(task.get("topic") or ""),
+        *(str(keyword or "") for keyword in (task.get("keywords") or [])),
+    ]
+    return _detect_entities_from_text(" ".join(secondary_parts))
+
+
+def _official_page_priority(page: dict, request: dict, package: dict) -> int:
+    url = str(page.get("url") or "").lower()
+    entity = str(page.get("entity") or "").strip().lower()
+    request_entities = set(_detect_request_entities(request, package))
+    score = 0
+    if entity and entity in request_entities:
+        score += 18
+    elif request_entities and entity:
+        score -= 4
+    for hint, weight in OFFICIAL_URL_HINT_WEIGHTS.items():
+        if hint in url:
+            score += weight
+    return score
+
+
+def _collect_official_page_urls(package: dict, limit: int, request: dict | None = None) -> list[dict]:
+    pages: list[dict] = []
+    seen_urls: set[str] = set()
     for note in package.get("source_notes", []):
-        note_url = str(note.get("url") or "").strip()
-        if note_url and not _is_youtube_url(note_url):
-            urls.append(note_url)
         for source in note.get("sources", []):
             source_type = str(source.get("type") or "").strip().lower()
             source_url = str(source.get("url") or "").strip()
             if not source_url or _is_youtube_url(source_url):
                 continue
-            if source_type == "official_candidate":
-                urls.append(source_url)
-    deduped = _dedupe(urls)
-    return deduped[: max(1, limit)]
+            if source_type != "official_candidate":
+                continue
+            lowered = source_url.lower()
+            if lowered in seen_urls:
+                continue
+            seen_urls.add(lowered)
+            pages.append({
+                "url": source_url,
+                "entity": str(source.get("entity") or "").strip().lower(),
+                "source_type": source_type,
+            })
+    if request:
+        pages = sorted(
+            pages,
+            key=lambda item: (_official_page_priority(item, request, package), item.get("url", "")),
+            reverse=True,
+        )
+    return pages[: max(1, limit)]
 
 
-def _extract_html_image_candidates(page_url: str, html_text: str, max_count: int) -> list[str]:
-    candidates: list[str] = []
+def _extract_attr_value(tag_text: str, attr_name: str) -> str:
+    match = re.search(rf'\b{attr_name}=["\']([^"\']+)["\']', tag_text, re.IGNORECASE)
+    if not match:
+        return ""
+    return " ".join(html.unescape(match.group(1)).split())
+
+
+def _extract_page_title(html_text: str) -> str:
+    match = HTML_TITLE_RE.search(html_text)
+    if not match:
+        return ""
+    title = html.unescape(match.group(1))
+    return " ".join(title.split())
+
+
+def _extract_html_image_candidates(page_url: str, html_text: str, max_count: int) -> list[dict]:
+    page_title = _extract_page_title(html_text)
+    candidates: list[dict] = []
+    seen_urls: set[str] = set()
+
+    def append_candidate(image_url: str, *, tag_origin: str, alt_text: str = "", image_title: str = "") -> None:
+        resolved = urljoin(page_url, html.unescape(image_url)).strip()
+        if not resolved:
+            return
+        lowered = resolved.lower()
+        if lowered in seen_urls:
+            return
+        if any(hint in lowered for hint in BAD_IMAGE_HINTS):
+            return
+        seen_urls.add(lowered)
+        candidates.append({
+            "image_url": resolved,
+            "source_page_url": page_url,
+            "page_title": page_title,
+            "alt_text": alt_text,
+            "image_title": image_title,
+            "tag_origin": tag_origin,
+        })
+
     for pattern in META_IMAGE_PATTERNS:
         for match in pattern.findall(html_text):
-            candidates.append(urljoin(page_url, html.unescape(match)))
-    for match in HTML_IMAGE_RE.findall(html_text):
-        resolved = urljoin(page_url, html.unescape(match))
-        lowered = resolved.lower()
-        if any(hint in lowered for hint in BAD_IMAGE_HINTS):
+            append_candidate(match, tag_origin="meta")
+
+    for tag in IMG_TAG_RE.findall(html_text):
+        src = _extract_attr_value(tag, "src")
+        if not src:
             continue
-        candidates.append(resolved)
-        if len(candidates) >= max_count * 3:
+        append_candidate(
+            src,
+            tag_origin="img",
+            alt_text=_extract_attr_value(tag, "alt"),
+            image_title=_extract_attr_value(tag, "title"),
+        )
+        if len(candidates) >= max_count * 4:
             break
-    return _dedupe(candidates)[: max(1, max_count)]
+
+    return candidates[: max(1, max_count * 3)]
+
+
+def _score_official_candidate(candidate: dict, request: dict, package: dict) -> int:
+    title_haystack = " ".join(
+        part for part in [
+            str(candidate.get("page_title") or ""),
+            str(candidate.get("alt_text") or ""),
+            str(candidate.get("image_title") or ""),
+        ]
+        if part
+    ).lower()
+    url_haystack = " ".join(
+        part for part in [
+            str(candidate.get("source_page_url") or ""),
+            str(candidate.get("image_url") or ""),
+            str(candidate.get("source_entity") or ""),
+        ]
+        if part
+    ).lower()
+    combined = f"{title_haystack} {url_haystack}"
+    score = 0
+
+    for term in _build_relevance_terms(request, package):
+        weight = _term_weight(term)
+        if term in title_haystack:
+            score += weight * 4
+        elif term in url_haystack:
+            score += weight * 2
+
+    for term, weight in _request_preferred_weights(request).items():
+        if term in title_haystack:
+            score += weight * 2
+        elif term in url_haystack:
+            score += weight
+
+    request_entities = set(_detect_request_entities(request, package))
+    source_entity = str(candidate.get("source_entity") or "").strip().lower()
+    if source_entity and source_entity in request_entities:
+        score += 18
+    elif request_entities and source_entity:
+        score -= 4
+
+    for hint, weight in OFFICIAL_URL_HINT_WEIGHTS.items():
+        if hint in combined:
+            score += weight
+
+    for hint, penalty in OFFICIAL_BAD_HINTS.items():
+        if hint in combined:
+            score -= penalty
+
+    request_type = str(request.get("type") or "").strip().lower()
+    if candidate.get("tag_origin") == "meta":
+        score += 4 if request_type == "cover" else -6
+
+    if request_type == "inline" and any(term in combined for term in ("hero", "banner", "og-image", "header")):
+        score -= 14
+    if request_type == "infographic" and any(term in combined for term in ("workflow", "architecture", "diagram", "flow", "overview", "system")):
+        score += 10
+    if request_type == "cover" and any(term in combined for term in ("hero", "cover", "header", "banner")):
+        score += 4
+
+    return score
 
 
 def _guess_extension(image_url: str, mime_type: str) -> str:
@@ -424,14 +628,18 @@ def _extract_wikimedia_value(payload: dict | None, key: str) -> str:
 
 def _tokenize_relevance_text(text: str) -> list[str]:
     tokens: list[str] = []
-    for raw in re.findall(r"[A-Za-z0-9][A-Za-z0-9+.-]*", text.lower()):
+    lowered = text.lower()
+    for raw in re.findall(r"[A-Za-z0-9][A-Za-z0-9+.-]*", lowered):
         if raw in RELEVANCE_STOP_WORDS:
             continue
         if len(raw) <= 2 and raw not in SHORT_KEEP_TOKENS:
             continue
         tokens.append(raw)
+    for raw in re.findall(r"[\u3400-\u9fff]{2,}", text):
+        normalized = raw.strip()
+        if normalized:
+            tokens.append(normalized)
     return tokens
-
 
 def _build_relevance_terms(request: dict, package: dict) -> set[str]:
     terms: set[str] = set()
@@ -617,13 +825,17 @@ def _fetch_asset_from_sources(
     output_base: Path,
     config: dict,
     http: JsonHttpClient,
-    page_cache: dict[str, list[str]],
+    page_cache: dict[str, list[dict]],
     used_image_urls: set[str],
     allow_reuse: bool = False,
     reuse_score_floor: int = 0,
 ) -> dict:
-    page_urls = _collect_official_page_urls(package, int(config.get("official_page_limit", 8)))
-    for page_url in page_urls:
+    page_sources = _collect_official_page_urls(package, int(config.get("official_page_limit", 8)), request=request)
+    official_candidates: list[dict] = []
+    for page in page_sources:
+        page_url = str(page.get("url") or "").strip()
+        if not page_url:
+            continue
         if page_url not in page_cache:
             try:
                 html_text = _request_text(page_url, int(config.get("request_timeout", 30)), str(config.get("user_agent") or DEFAULT_USER_AGENT))
@@ -632,23 +844,45 @@ def _fetch_asset_from_sources(
                 page_cache[page_url] = []
             else:
                 page_cache[page_url] = _extract_html_image_candidates(page_url, html_text, int(config.get("official_images_per_page", 6)))
-        for image_url in page_cache.get(page_url, []):
-            lowered = image_url.lower()
-            if lowered in used_image_urls:
-                continue
-            try:
-                meta = _download_image_candidate(image_url, output_base, config)
-            except Exception as exc:
-                print(f"[images] skipped official candidate for {request.get('asset_id')}: {image_url} ({exc})", file=sys.stderr)
-                continue
-            used_image_urls.add(lowered)
-            return {
-                **meta,
-                "source_backend": "official_fetch",
-                "source_strategy": "official",
-                "source_page_url": page_url,
-                "review": {"status": "skipped", "reason": "official_fetch_no_editing"},
+        for candidate in page_cache.get(page_url, []):
+            merged = {
+                **candidate,
+                "source_entity": page.get("entity", ""),
+                "source_type": page.get("source_type", "official_candidate"),
             }
+            merged["relevance_score"] = _score_official_candidate(merged, request, package)
+            official_candidates.append(merged)
+
+    ranked_official = sorted(
+        official_candidates,
+        key=lambda item: (int(item.get("relevance_score", 0)), str(item.get("source_page_url") or ""), str(item.get("image_url") or "")),
+        reverse=True,
+    )
+    positive_official = [item for item in ranked_official if int(item.get("relevance_score", 0)) > 0]
+    official_attempts = positive_official or ranked_official
+
+    seen_attempt_urls: set[str] = set()
+    for candidate in official_attempts:
+        image_url = str(candidate.get("image_url") or "").strip()
+        lowered = image_url.lower()
+        if not image_url or lowered in used_image_urls or lowered in seen_attempt_urls:
+            continue
+        seen_attempt_urls.add(lowered)
+        try:
+            meta = _download_image_candidate(image_url, output_base, config)
+        except Exception as exc:
+            print(f"[images] skipped official candidate for {request.get('asset_id')}: {image_url} ({exc})", file=sys.stderr)
+            continue
+        used_image_urls.add(lowered)
+        return {
+            **meta,
+            "source_backend": "official_fetch",
+            "source_strategy": "official",
+            "source_page_url": candidate.get("source_page_url", ""),
+            "source_entity": candidate.get("source_entity", ""),
+            "relevance_score": int(candidate.get("relevance_score", 0)),
+            "review": {"status": "skipped", "reason": "official_fetch_no_editing"},
+        }
 
     if str(config.get("fallback_provider") or "").lower() != "wikimedia":
         raise ValueError(f"No official image found for {request.get('asset_id')} and fallback provider is disabled")
@@ -679,7 +913,7 @@ def _fetch_asset_from_sources(
     else:
         preferred_candidates.extend((candidate, False) for candidate in unused_candidates)
 
-    seen_attempt_urls: set[str] = set()
+    seen_attempt_urls = set()
     for candidate, reused_candidate in preferred_candidates:
         image_url = str(candidate.get("image_url") or "").strip()
         lowered = image_url.lower()
@@ -708,7 +942,6 @@ def _fetch_asset_from_sources(
         }
 
     raise ValueError(f"Unable to find a usable fetched image for {request.get('asset_id')}")
-
 
 def execute_fetch_mode(package: dict, image_package: dict, config: dict, asset_dir: Path) -> dict:
     http = JsonHttpClient(timeout=int(config.get("request_timeout", 30)))

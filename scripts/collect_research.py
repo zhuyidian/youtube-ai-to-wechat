@@ -18,6 +18,36 @@ from typing import Iterable
 
 ENTITY_SOURCES = {
 
+    "wechat": [
+
+        "https://mp.weixin.qq.com",
+
+        "https://developers.weixin.qq.com/doc/",
+
+        "https://open.weixin.qq.com",
+
+    ],
+
+    "tencent": [
+
+        "https://www.tencent.com/zh-cn/articles/index.html?type=all",
+
+        "https://cloud.tencent.com/developer",
+
+        "https://developers.weixin.qq.com/doc/",
+
+    ],
+
+    "n8n": [
+
+        "https://n8n.io",
+
+        "https://docs.n8n.io",
+
+        "https://blog.n8n.io",
+
+    ],
+
     "openai": [
 
         "https://openai.com/blog",
@@ -98,6 +128,34 @@ ENTITY_SOURCES = {
 
 }
 
+ENTITY_ALIASES = {
+
+    "wechat": ["wechat", "weixin", "微信", "公众号", "视频号", "小程序", "企业微信"],
+
+    "tencent": ["tencent", "腾讯", "騰訊", "wxg", "wechat team"],
+
+    "n8n": ["n8n"],
+
+    "openai": ["openai"],
+
+    "google": ["google", "谷歌"],
+
+    "gemini": ["gemini"],
+
+    "anthropic": ["anthropic"],
+
+    "claude": ["claude"],
+
+    "meta": ["meta"],
+
+    "llama": ["llama"],
+
+    "microsoft": ["microsoft", "微软", "azure"],
+
+    "nvidia": ["nvidia", "英伟达"],
+
+}
+
 CLAIM_HINTS = ("launch", "release", "released", "new", "benchmark", "price", "agent", "model", "available", "support", "tool", "api")
 
 SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
@@ -159,10 +217,15 @@ def detect_entities(text: str) -> list[str]:
 
     lowered = text.lower()
 
-    entities = [entity for entity in ENTITY_SOURCES if entity in lowered]
+    entities: list[str] = []
+
+    for entity, aliases in ENTITY_ALIASES.items():
+
+        if any(alias.lower() in lowered for alias in aliases):
+
+            entities.append(entity)
 
     return dedupe(entities)
-
 
 
 def extract_urls(text: str) -> list[str]:
@@ -315,6 +378,10 @@ def build_research_item(task: dict, transcript_entry: dict, fixtures: dict) -> d
 
         [
 
+            task.get("topic", ""),
+
+            " ".join(task.get("keywords", [])),
+
             transcript_entry.get("title", ""),
 
             transcript_entry.get("transcript_text", ""),
@@ -322,7 +389,6 @@ def build_research_item(task: dict, transcript_entry: dict, fixtures: dict) -> d
         ]
 
     )
-
     claim_text = transcript_entry.get("transcript_text", "") or transcript_entry.get("title", "")
 
     entities = detect_entities(entity_text)
@@ -428,6 +494,8 @@ def main() -> None:
 if __name__ == "__main__":
 
     main()
+
+
 
 
 

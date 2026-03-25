@@ -393,38 +393,63 @@ def inject_image_markdown(markdown_text: str, image_package: dict | None = None)
 
     cover, inline_lookup, infographic = _build_image_lookup(image_package)
     lines = text.splitlines()
+    headings = [line.strip()[3:].strip() for line in lines if line.strip().startswith("## ")]
+    has_h1 = any(line.strip().startswith("# ") for line in lines)
+    infographic_target_heading = ""
+    infographic_keywords = ("工作流", "流程", "架构", "原理", "路径", "对比", "系统", "分工")
+    for heading in headings:
+        if any(keyword in heading for keyword in infographic_keywords):
+            infographic_target_heading = heading
+            break
+    if not infographic_target_heading and headings:
+        infographic_target_heading = headings[1] if len(headings) > 1 else headings[0]
+
     output: list[str] = []
-    h2_count = 0
+    cover_inserted = False
+    infographic_inserted = False
 
     for raw_line in lines:
         output.append(raw_line)
         stripped = raw_line.strip()
 
         if stripped.startswith("# "):
-            cover_src = _image_src(cover)
-            if cover_src:
-                output.extend(["", _image_markdown_line(cover_src), ""])
+            if not cover_inserted:
+                cover_src = _image_src(cover)
+                if cover_src:
+                    output.extend(["", _image_markdown_line(cover_src), ""])
+                    cover_inserted = True
             continue
 
         if stripped.startswith("## "):
-            h2_count += 1
             heading = stripped[3:].strip()
+            if not has_h1 and not cover_inserted:
+                cover_src = _image_src(cover)
+                if cover_src:
+                    output.extend(["", _image_markdown_line(cover_src), ""])
+                    cover_inserted = True
+
             image_item = inline_lookup.get(heading)
             image_src = _image_src(image_item)
             if image_src:
                 output.extend(["", _image_markdown_line(image_src), ""])
-            if infographic and h2_count == 3:
+
+            if infographic and not infographic_inserted and heading == infographic_target_heading:
                 infographic_src = _image_src(infographic)
                 if infographic_src:
-                    output.extend(["", "### \u4fe1\u606f\u56fe\u53c2\u8003", "", _image_markdown_line(infographic_src), ""])
+                    output.extend(["", "### 信息图参考", "", _image_markdown_line(infographic_src), ""])
+                    infographic_inserted = True
 
-    if infographic and h2_count < 3:
+    if not cover_inserted:
+        cover_src = _image_src(cover)
+        if cover_src:
+            output = [_image_markdown_line(cover_src), "", *output]
+
+    if infographic and not infographic_inserted:
         infographic_src = _image_src(infographic)
         if infographic_src:
             output.extend(["", "### 信息图参考", "", _image_markdown_line(infographic_src)])
 
     return "\n".join(output).strip()
-
 
 def strip_generated_tail_sections(markdown_text: str) -> str:
     lines = markdown_text.splitlines()
@@ -649,4 +674,5 @@ def inject_blocks(formatted: dict, skill_dir: Path, brand_config: dict) -> dict:
         "resource_links": resource_links,
         "final_html": final_html,
     }
+
 

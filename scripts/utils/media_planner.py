@@ -62,10 +62,17 @@ def load_publish_config(path: str | None) -> dict:
 
 
 def build_image_requests(article: dict) -> dict:
-    headings = [line[3:].strip() for line in str(article.get("body_markdown", "")).splitlines() if line.startswith("## ")]
+    headings = [
+        line[3:].strip()
+        for line in str(article.get("body_markdown", "")).splitlines()
+        if line.startswith("## ")
+    ]
     inline_requests = []
     article_title = _clean_text(article.get("final_title") or article.get("selected_title"), "AI article")
-    for index, heading in enumerate(headings[:3], 1):
+    section_headings = [heading for heading in headings if heading and heading != article_title]
+    if not section_headings:
+        section_headings = headings
+    for index, heading in enumerate(section_headings[:3], 1):
         subject = f"{article_title}, section: {heading}"
         inline_requests.append({
             "asset_id": f"inline-{index:03d}",
@@ -109,7 +116,6 @@ def build_image_requests(article: dict) -> dict:
             "aspect_ratio": "4:5",
         },
     }
-
 
 def build_infographic_plan(article: dict) -> dict:
     return {

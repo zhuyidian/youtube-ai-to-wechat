@@ -120,55 +120,6 @@
 python -m pip install Pillow
 ```
 
-## 快速开始
-
-### 1. 复制配置模板
-
-从以下模板开始二选一:
-
-- 通用模板: [`assets/examples/live_config.example.json`](./assets/examples/live_config.example.json)
-- 生产模板: [`assets/examples/environments/live_config.prod.example.json`](./assets/examples/environments/live_config.prod.example.json)
-
-如果你需要本地私有环境脚本，建议把真实密钥放到未纳入版本控制的本地文件中，不要直接改示例文件后提交。
-
-### 2. 预览模式跑通一条主题链路
-
-仓库内最直接的 PowerShell 入口:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\assets\examples\environments\run_oneit_topic.ps1 `
-  -Topic "OpenAI Agents" `
-  -Keywords "OpenAI Agents","AI agents" `
-  -Preview
-```
-
-这个入口会先生成:
-
-- `search_candidates.auto.json`
-- `ranked_candidates.auto.json`
-- `transcript_pack.auto.json`
-- `source_pack.auto.json`
-
-再继续跑文章与排版链路，并在 `.runs/<run-name>/` 下输出预览文件和发布包。
-
-### 3. 直接使用 Python 主入口
-
-如果你已经有 `source_pack.json`，可以直接调用完整 live pipeline:
-
-```powershell
-python .\scripts\run_live_pipeline.py .\.runs\example\source_pack_v2.json `
-  --output-dir .\.runs\2026-03-24-openai-agents-preview `
-  --live-config .\assets\examples\environments\live_config.prod.example.json `
-  --execute-llm `
-  --max-retries 2 `
-  --retry-policy smart
-```
-
-需要真的调用图片或草稿上传时，再显式加入:
-
-- `--execute-images`
-- `--execute-publish`
-
 ## 主要产物
 
 典型运行目录位于 `.runs/<run-name>/`，常见文件包括:
@@ -185,20 +136,46 @@ python .\scripts\run_live_pipeline.py .\.runs\example\source_pack_v2.json `
 
 更完整的字段定义见 [`SCHEMA.md`](./SCHEMA.md)。
 
-## 作为 Codex Skill 使用
+## Skill快速使用
 
-如果你把这个仓库作为 skill 直接挂载给 Codex，主入口说明在 [`SKILL.md`](./SKILL.md)。
-
-仓库内公开入口:
-
-- Prompt 模板: [`prompts/youtube-ai-to-wechat.prompt.md`](./prompts/youtube-ai-to-wechat.prompt.md)
-- Runner 包装脚本: [`scripts/run-youtube-ai-to-wechat.ps1`](./scripts/run-youtube-ai-to-wechat.ps1)
-- 环境运行脚本: [`assets/examples/environments/run_oneit_topic.ps1`](./assets/examples/environments/run_oneit_topic.ps1)
-
-如果你是在 `SkillsDemo` 主仓库里调用，也可以通过外层兼容脚本运行:
+### 触发方式一：直接跑仓库包装脚本 `run-youtube-ai-to-wechat.ps1`
 
 ```powershell
-.\scripts\run-youtube-ai-to-wechat.ps1 -Topic "OpenAI Agents" -Preview
+powershell -NoProfile -ExecutionPolicy Bypass -File xxx\.youtube-ai-to-wechat\scripts\run-youtube-ai-to-wechat.ps1 `
+    -Topic "微信生态里的 AI 创业机会" `
+    -Keywords "微信 AI 创业","微信生态 AI 商业机会","WeChat AI startup opportunity","WeChat AI business opportunity","AI workflow in WeChat" `
+    -ArticleType deep_analysis `
+    -TimeRange "30d" `
+    -Language "zh","en" `
+    -MaxCandidates 20 `
+    -MaxSelectedVideos 3 `
+    -Preview
+```
+
+### 触发方式二：在 Codex 对话里直接调用本地 skill
+
+仓库里直接提 `$youtube-ai-to-wechat` 或 `youtube-ai-to-wechat`，就会按本地 skill 处理。
+
+```md
+[$youtube-ai-to-wechat](xxx\.youtube-ai-to-wechat\SKILL.md)
+Generate a WeChat article draft for topic "微信生态里的 AI 创业机会".
+Keywords: 微信 AI 创业,微信生态 AI 商业机会,WeChat AI startup opportunity,WeChat AI business opportunity,AI workflow in WeChat
+Time range: 30d
+Language: zh,en
+Article type: deep_analysis
+Publish mode: draft_only
+Max candidates: 20
+Max selected videos: 3
+```
+
+### 触发方式三：直接进 skill 内部跑 OneIT 入口 `run_oneit_topic.ps1`
+
+```powershell
+powershell -ExecutionPolicy Bypass -File xxx\.\youtube-ai-to-wechat\assets\examples\environments\run_oneit_topic.ps1 `
+    -Topic "OpenAI Agents" `
+    -Keywords "OpenAI Agents","AI agents" `
+    -ArticleType commentary `
+    -Preview
 ```
 
 ## 文档导航
@@ -210,6 +187,8 @@ python .\scripts\run_live_pipeline.py .\.runs\example\source_pack_v2.json `
 - [`SCHEMA.md`](./SCHEMA.md): 产物结构与兼容字段
 - [`VERSIONING.md`](./VERSIONING.md): 版本号与 tag 规则
 - `README.md`: 当前版本号与变更记录
+
+
 
 
 

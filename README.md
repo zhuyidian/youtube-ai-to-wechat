@@ -2,7 +2,7 @@
 
 `youtube-ai-to-wechat` 是一个面向 Codex / 本地脚本运行的内容生产 skill，用来把 YouTube 上的 AI 主题视频与补充研究，整理成适合微信公众号草稿箱的中文文章包。
 
-当前仓库状态对应公开发布版本 `v0.2.1`。默认定位是“半自动生产”：自动完成选题发现、素材整理、写作、图片规划、排版和草稿上传准备，再由人工审核后决定是否发布。
+当前仓库状态对应公开发布版本 `v0.2.2`。默认定位是“半自动生产”：自动完成选题发现、素材整理、写作、图片规划、排版和草稿上传准备，再由人工审核后决定是否发布。
 
 ## 能力范围
 
@@ -25,11 +25,19 @@
 
 ### 当前版本
 
-- 仓库当前公开版本: `0.2.1`
-- Git 标签: `v0.2.1`
-- 发布时间: `2026-03-25`
+- 仓库当前公开版本: `0.2.2`
+- Git 标签: `v0.2.2`
+- 发布时间: `2026-03-28`
 
 ### 变更记录
+
+#### [0.2.2] - 2026-03-28
+
+本次修复:
+
+- 修复 `search_youtube.py` 在 YouTube `videos` / `channels` 批量请求遇到坏条目时整批失败的问题，改为过滤空 ID 并在批量失败时自动回退到逐条请求
+- 修复发布脚本只识别 `WECHAT_APP_ID` / `WECHAT_APP_SECRET` 的限制，兼容历史环境变量别名 `WXAppID` / `WXAppSecret` 以及 `WXAccessToken`
+- 补充 README 中的微信公众号环境变量兼容说明，减少本地发布时的环境配置歧义
 
 #### [0.2.1] - 2026-03-25
 
@@ -107,6 +115,7 @@
 - `MINIMAX_API_KEY`
 - `WECHAT_ACCESS_TOKEN`
 - 或者 `WECHAT_APP_ID` + `WECHAT_APP_SECRET`
+- 发布脚本兼容历史别名 `WXAppID` + `WXAppSecret`，但仍推荐统一使用 `WECHAT_APP_ID` + `WECHAT_APP_SECRET`
 
 建议先阅读:
 
@@ -187,6 +196,8 @@ powershell -ExecutionPolicy Bypass -File xxx\.\youtube-ai-to-wechat\assets\examp
 - [`SCHEMA.md`](./SCHEMA.md): 产物结构与兼容字段
 - [`VERSIONING.md`](./VERSIONING.md): 版本号与 tag 规则
 - `README.md`: 当前版本号与变更记录
+
+
 
 
 

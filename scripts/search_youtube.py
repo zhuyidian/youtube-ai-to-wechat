@@ -1,12 +1,14 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
 import json
 import re
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable
+from urllib.error import HTTPError
 
 from utils.api_clients import YouTubeDataApiClient
 from utils.config_loader import load_task
@@ -44,6 +46,12 @@ def dedupe(values: Iterable[str]) -> list[str]:
     return result
 
 
+def chunked(values: list[str], size: int) -> list[list[str]]:
+    if size <= 0:
+        raise ValueError("chunk size must be > 0")
+    return [values[index : index + size] for index in range(0, len(values), size)]
+
+
 def build_queries(task: dict) -> list[str]:
     base_queries: list[str] = []
     if task.get("topic"):
@@ -54,7 +62,7 @@ def build_queries(task: dict) -> list[str]:
     for query in base_queries:
         lowered = query.lower()
         expanded.append(query)
-        if "ai" not in lowered and "浜哄伐鏅鸿兘" not in query:
+        if "ai" not in lowered and "娴滃搫浼愰弲楦垮厴" not in query:
             expanded.append(f"{query} AI")
     return dedupe(expanded)[:6]
 
@@ -77,6 +85,70 @@ def pick_thumbnail(snippet: dict) -> str | None:
         if key in thumbnails and thumbnails[key].get("url"):
             return thumbnails[key]["url"]
     return None
+
+
+def collect_ids(search_items: list[tuple[str, dict]], field: str) -> list[str]:
+    values: list[str] = []
+    for _, item in search_items:
+        if field == "videoId":
+            raw = item.get("id", {}).get("videoId", "")
+        else:
+            raw = item.get("snippet", {}).get(field, "")
+        if isinstance(raw, str):
+            normalized = raw.strip()
+            if normalized:
+                values.append(normalized)
+    return dedupe(values)
+
+
+def load_videos_by_id(client: YouTubeDataApiClient, video_ids: list[str]) -> dict[str, dict]:
+    videos_by_id: dict[str, dict] = {}
+    for batch in chunked(video_ids, 20):
+        try:
+            response = client.get_videos(batch)
+        except HTTPError as exc:
+            print(
+                f"Warning: get_videos batch failed for {len(batch)} ids ({exc}); retrying individually.",
+                file=sys.stderr,
+            )
+            response = {"items": []}
+            for video_id in batch:
+                try:
+                    single = client.get_videos([video_id])
+                except HTTPError as single_exc:
+                    print(f"Warning: skipped video metadata for {video_id} ({single_exc})", file=sys.stderr)
+                    continue
+                response["items"].extend(single.get("items", []))
+        for item in response.get("items", []):
+            item_id = item.get("id")
+            if item_id:
+                videos_by_id[item_id] = item
+    return videos_by_id
+
+
+def load_channels_by_id(client: YouTubeDataApiClient, channel_ids: list[str]) -> dict[str, dict]:
+    channels_by_id: dict[str, dict] = {}
+    for batch in chunked(channel_ids, 20):
+        try:
+            response = client.get_channels(batch)
+        except HTTPError as exc:
+            print(
+                f"Warning: get_channels batch failed for {len(batch)} ids ({exc}); retrying individually.",
+                file=sys.stderr,
+            )
+            response = {"items": []}
+            for channel_id in batch:
+                try:
+                    single = client.get_channels([channel_id])
+                except HTTPError as single_exc:
+                    print(f"Warning: skipped channel metadata for {channel_id} ({single_exc})", file=sys.stderr)
+                    continue
+                response["items"].extend(single.get("items", []))
+        for item in response.get("items", []):
+            item_id = item.get("id")
+            if item_id:
+                channels_by_id[item_id] = item
+    return channels_by_id
 
 
 def normalize_candidate(search_item: dict, video: dict, channel: dict, source_query: str) -> dict:
@@ -143,21 +215,8 @@ def main() -> None:
             seen_video_ids.add(video_id)
             search_items.append((query, item))
 
-    videos_by_id = {
-        item.get("id"): item
-        for item in client.get_videos([item.get("id", {}).get("videoId") for _, item in search_items]).get("items", [])
-        if item.get("id")
-    }
-    channels_by_id = {
-        item.get("id"): item
-        for item in client.get_channels(
-            dedupe(
-                item.get("snippet", {}).get("channelId", "")
-                for _, item in search_items
-            )
-        ).get("items", [])
-        if item.get("id")
-    }
+    videos_by_id = load_videos_by_id(client, collect_ids(search_items, "videoId"))
+    channels_by_id = load_channels_by_id(client, collect_ids(search_items, "channelId"))
 
     candidates = []
     for source_query, search_item in search_items:
@@ -181,4 +240,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main()
